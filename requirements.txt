@@ -2,4 +2,3 @@ pyopengl==3.1.1a1
 glfw==2.5.1
 pyrr==0.10.3
 pillow==9.3.0
-pygame==2.1.2
