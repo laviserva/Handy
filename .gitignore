@@ -1,0 +1,6 @@
+__pycache__
+.mypy_cache
+Examples/Basic_window.py
+*.mtl
+*.blend
+.vs
