@@ -6,7 +6,7 @@ current_dir = os.path.dirname(file_dir)
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from utils.glfw_render import Renderer
+from utils.GLFW_render import Renderer
 import unittest
 
 class Test_glfw_render(unittest.TestCase):
@@ -34,5 +34,3 @@ class Test_glfw_render(unittest.TestCase):
 
         self.assertRaises(ValueError, Renderer, height_initpos="12")
         self.assertRaises(ValueError, Renderer, height_initpos=-8)
-
-unittest.main()
