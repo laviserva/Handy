@@ -11,18 +11,20 @@ current_dir = os.path.dirname(file_dir)
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from utils.load_src import load_src
-from utils.obj_loader import *
+from utils.Load_src import load_src
+from utils.ObjectTexture_Loader import ObjLoader, load_texture
 
 projection = pyrr.matrix44.create_perspective_projection_matrix(45, 1280 / 720, 0.1, 100)
-chibi_pos = pyrr.matrix44.create_from_translation(pyrr.Vector3([0, -5, -10]))
+plane_pos = pyrr.matrix44.create_from_translation(pyrr.Vector3([0, -5, -10]))
 
 vertex_src = load_src(os.path.join(parent_dir, "cpp", "vertex_src.c"))
 fragment_src = load_src(os.path.join(parent_dir, "cpp", "fragment_src.c"))
 
-# load here the 3d meshes
-chibi_indices, chibi_buffer = ObjLoader.load_model(r"D:\Proyectos\Handy\Resources\plane_1.obj")
-monkey_indices, monkey_buffer = ObjLoader.load_model(r"D:\Proyectos\Handy\Resources\cubo.obj")
+plane = ObjLoader(r"D:\Proyectos\Handy\Resources\plane_1.obj")
+plane = plane.load_model()
+plane_indices = plane["Plane"]["i"]
+plane_buffer = plane["Plane"]["b"]
+
 
 # glfw callback functions
 def window_resize(window, width, height):
@@ -72,25 +74,21 @@ glUniformMatrix4fv(view_loc, 1, GL_FALSE, view)
 # VAO and VBO
 VAO = glGenVertexArrays(1)
 VBO = glGenBuffers(1)
-# EBO = glGenBuffers(1)
 
-# Chibi VAO
+# plane VAO
 glBindVertexArray(VAO)
-# Chibi Vertex Buffer Object
+# plane Vertex Buffer Object
 glBindBuffer(GL_ARRAY_BUFFER, VBO)
-glBufferData(GL_ARRAY_BUFFER, chibi_buffer.nbytes, chibi_buffer, GL_STATIC_DRAW)
+glBufferData(GL_ARRAY_BUFFER, plane_buffer.nbytes, plane_buffer, GL_STATIC_DRAW)
 
-# glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO)
-# glBufferData(GL_ELEMENT_ARRAY_BUFFER, chibi_indices.nbytes, chibi_indices, GL_STATIC_DRAW)
-
-# chibi vertices
+# plane vertices
 glEnableVertexAttribArray(0)
-glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, chibi_buffer.itemsize * 8, ctypes.c_void_p(0))
-# chibi textures
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, plane_buffer.itemsize * 8, ctypes.c_void_p(0))
+# plane textures
 glEnableVertexAttribArray(1)
-glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, chibi_buffer.itemsize * 8, ctypes.c_void_p(12))
-# chibi normals
-glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, chibi_buffer.itemsize * 8, ctypes.c_void_p(20))
+glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, plane_buffer.itemsize * 8, ctypes.c_void_p(12))
+# plane normals
+glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, plane_buffer.itemsize * 8, ctypes.c_void_p(20))
 glEnableVertexAttribArray(2)
 
 textures = glGenTextures(1)
@@ -103,16 +101,14 @@ while not glfw.window_should_close(window):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     rot_y = pyrr.Matrix44.from_y_rotation(0.8 * glfw.get_time())
-    model = pyrr.matrix44.multiply(rot_y, chibi_pos)
+    model = pyrr.matrix44.multiply(rot_y, plane_pos)
 
-    # draw the chibi character
+    # draw the plane character
     glBindVertexArray(VAO)
     glBindTexture(GL_TEXTURE_2D, textures)
     glUniformMatrix4fv(model_loc, 1, GL_FALSE, model)
-    glDrawArrays(GL_TRIANGLES, 0, len(chibi_indices))
-    # glDrawElements(GL_TRIANGLES, len(chibi_indices), GL_UNSIGNED_INT, None)
+    glDrawArrays(GL_TRIANGLES, 0, len(plane_indices))
 
     glfw.swap_buffers(window)
 
-# terminate glfw, free up allocated resources
 glfw.terminate()
