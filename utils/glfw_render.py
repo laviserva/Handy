@@ -15,7 +15,7 @@ current_dir = os.path.dirname(file_dir)
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from utils.load_src import load_src
+from utils.Load_src import load_src
 
 class Renderer:
     def __init__(self, width: int=1280, height: int=720, title: str = "default name",
