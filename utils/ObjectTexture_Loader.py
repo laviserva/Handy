@@ -142,6 +142,3 @@ class ObjLoader:
                     continue
                 objects[key][subkey] = np.array(objects[key][subkey], dtype=datatype)
         return objects
-
-obj = ObjLoader(r"D:\Proyectos\PyRendOs\Resources\plane_1.obj")
-obj.load_model()
