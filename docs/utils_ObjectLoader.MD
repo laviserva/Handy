@@ -1,7 +1,7 @@
 # Object and Texture Loader
 
 A nice way to ilustrate what Object Loader do is with the next image.
-![[resources/Object Loader mentalmap.png]]
+![image](resources/Object Loader mentalmap.png)
 # File Obj
 ## Preparing data
 An obj extension is grouped by objects, groups, vertices, normal vertices, texture vertices face, materials etc. In `Resources folder` in root there is `plane_1.obj` it looks like this:
