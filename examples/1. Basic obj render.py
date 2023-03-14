@@ -103,9 +103,6 @@ while not glfw.window_should_close(window):
     rot_y = pyrr.Matrix44.from_y_rotation(0.8 * glfw.get_time())
     model = pyrr.matrix44.multiply(rot_y, plane_pos)
 
-    # draw the plane character
-    glBindVertexArray(VAO)
-    glBindTexture(GL_TEXTURE_2D, textures)
     glUniformMatrix4fv(model_loc, 1, GL_FALSE, model)
     glDrawArrays(GL_TRIANGLES, 0, len(plane_indices))
 
