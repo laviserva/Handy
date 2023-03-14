@@ -22,13 +22,22 @@ def load_texture(path, texture):
     return texture
 
 class ObjLoader:
-    def __init__(self, object_path: str, all_objects: bool = False):
-        self.all_objects = all_objects
+    def __init__(self, object_path: str, all_objects: bool = False, texture_path: str = None):
+        self._all_objects = all_objects
+        self.texture = texture_path
         
         self.objects = {}
         self.object_path = object_path
         self.max_f = [0, 0, 0]
         self.__first_time = True
+
+    def _add_texture(self, objects):
+        if not self.texture: return objects
+        
+        for key in objects:
+            objects[key]["t"] = self.texture
+        return objects
+        
 
     def load_model(self):
         """Return all objects inside a .obj file
@@ -67,14 +76,15 @@ class ObjLoader:
                         "b": [],
                         "max_f": [0, 0, 0],
                     }
-                    if not self.all_objects: self.__first_time = False
+                    if not self._all_objects: self.__first_time = False
                     continue
                 
                 if key_obj == None:
                     continue
                 self.objects[key_obj] = self._get_all_objects(values, self.objects[key_obj])
         self.objects = self._vertex_buffers(self.objects)
-        return self._to_numpy(self.objects)
+        self.objects = self._to_numpy(self.objects)
+        return self._add_texture(self.objects)
 
     def _fix_indices(self, faces: str) -> List[int]:
         out = []
