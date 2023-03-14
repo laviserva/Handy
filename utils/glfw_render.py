@@ -1,6 +1,9 @@
 from OpenGL.GL import glGetUniformLocation, glBlendFunc, glClear, glUseProgram, glClearColor, glEnable, glViewport, \
                     GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_DEPTH_BUFFER_BIT, GL_FALSE, GL_DEPTH_TEST, GL_BLEND, \
-                    GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_COLOR_BUFFER_BIT, glUniformMatrix4fv
+                    GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_COLOR_BUFFER_BIT, glUniformMatrix4fv, glBindVertexArray, \
+                    glBindBuffer, GL_ARRAY_BUFFER, glBufferData, GL_ARRAY_BUFFER, GL_STATIC_DRAW, glGenVertexArrays, \
+                    glGenBuffers, glEnableVertexAttribArray, glVertexAttribPointer, GL_FLOAT, ctypes, glGenTextures, \
+                    glBindTexture, GL_TEXTURE_2D, glDrawArrays, GL_TRIANGLES
 from OpenGL.GL.shaders import compileProgram, compileShader
 
 import glfw
@@ -16,10 +19,11 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from utils.Load_src import load_src
+from utils.ObjectTexture_Loader import load_texture
 
 class Renderer:
     def __init__(self, width: int=1280, height: int=720, title: str = "default name",
-                 width_initpos: int = 400, height_initpos: int =200,
+                 width_initpos: int = 400, height_initpos: int =200
                  ):
         """Provide information to create a windows for render
 
@@ -89,7 +93,6 @@ class Renderer:
             raise ValueError(f"height initial position value greater than monitor height reduce it")
         if height_initpos < 0:
             raise ValueError("height value lower than minimum height: 0")
-
         
     def _create_window(self):
         """From initial conditions, create window."""
@@ -119,19 +122,33 @@ class Renderer:
         glUniformMatrix4fv(self._proj_loc, 1, GL_FALSE, self._projection)
         glUniformMatrix4fv(self._view_loc, 1, GL_FALSE, self._view)
     
-    def render(self):
+    def _refresh(self, model, objects):
+        plane_pos = pyrr.matrix44.create_from_translation(pyrr.Vector3([0, -5, -10]))
+        rot_y = pyrr.Matrix44.from_y_rotation(0.8 * glfw.get_time())
+        model = pyrr.matrix44.multiply(rot_y, plane_pos)
+        for key in objects:
+            glUniformMatrix4fv(self._model_loc, 1, GL_FALSE, model)
+            glDrawArrays(GL_TRIANGLES, 0, len(objects[key]["i"]))
+
+    def render(self, objects: dict, function: callable = None, model = None):
         """Create windows, load shaders and refresh window"""
         self._create_window()
         self._load_shader()
-        self._while_loop()
 
-    def _while_loop(self):
+        parser = Object_parser(objects)
+        parser._load_vertex()
+        parser._load_textures()
+
+        self._while_loop(function, model = model, objects=objects)
+
+    def _while_loop(self, function: callable = None, model = None, objects = None):
         """while loop where objects will be refreshed"""
         while not glfw.window_should_close(self._window):
             glfw.poll_events()
-
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+            if function: function()
+            self._refresh(model, objects)
             glfw.swap_buffers(self._window)
 
         # terminate glfw, free up allocated resources
@@ -156,6 +173,53 @@ class Shader:
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+class Object_parser:
+    def __init__(self, objects: dict) -> None:
+        self._objects = objects
+        self._indices = []
+        self._buffers = []
+        self._VAOs = []
+        self._VBOs = []
+        
+        for key in objects:
+            self._indices.append(objects[key]["i"])
+            self._buffers.append(objects[key]["b"])
+
+    def _load_vertex(self):
+        for obj in self._buffers:
+            VAO = glGenVertexArrays(1)
+            VBO = glGenBuffers(1)
+
+            # bind VAO
+            glBindVertexArray(VAO)
+
+            # bind VBO
+            glBindBuffer(GL_ARRAY_BUFFER, VBO)
+            glBufferData(GL_ARRAY_BUFFER, obj.nbytes, obj, GL_STATIC_DRAW)
+
+            # set attribute pointers
+            glEnableVertexAttribArray(0)
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, obj.itemsize * 8, ctypes.c_void_p(0))
+
+            glEnableVertexAttribArray(1)
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, obj.itemsize * 8, ctypes.c_void_p(12))
+
+            glEnableVertexAttribArray(2)
+            glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, obj.itemsize * 8, ctypes.c_void_p(20))
+
+            # unbind VBO and VAO
+            glBindBuffer(GL_ARRAY_BUFFER, 0)
+            glBindVertexArray(0)
+
+            # append VAO and VBO to their lists
+            self._VAOs.append(VAO)
+            self._VBOs.append(VBO)
+    
+    def _load_textures(self):
+        for key in self._objects:
+            textures = glGenTextures(1)
+            load_texture(self._objects[key]["t"], textures)
 
 #r = Renderer()
 #r.render()
