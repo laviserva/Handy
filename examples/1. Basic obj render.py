@@ -95,7 +95,7 @@ textures = glGenTextures(1)
 load_texture(r"D:\Proyectos\Handy\Resources\texture 1.png", textures)
 
 rot_y = pyrr.Matrix44.from_y_rotation(0.8 * glfw.get_time())
-model = pyrr.matrix44.multiply(rot_y, plane_pos)|
+model = pyrr.matrix44.multiply(rot_y, plane_pos)
 
 print("plane_buffer.nbytes: ", plane_buffer.nbytes)
 print("plane_buffer.itemsize * 8: ", plane_buffer.itemsize * 8)
