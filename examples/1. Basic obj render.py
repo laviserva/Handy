@@ -94,6 +94,19 @@ glEnableVertexAttribArray(2)
 textures = glGenTextures(1)
 load_texture(r"D:\Proyectos\Handy\Resources\texture 1.png", textures)
 
+rot_y = pyrr.Matrix44.from_y_rotation(0.8 * glfw.get_time())
+model = pyrr.matrix44.multiply(rot_y, plane_pos)|
+
+print("plane_buffer.nbytes: ", plane_buffer.nbytes)
+print("plane_buffer.itemsize * 8: ", plane_buffer.itemsize * 8)
+print("VAO: ", VAO)
+print("VBO: ", VBO)
+print("plane_pos: ", plane_pos)
+print("model_loc: ", model_loc)
+print("model: ", model)
+print("len(plane_indices): ", len(plane_indices))
+
+
 # the main application loop
 while not glfw.window_should_close(window):
     glfw.poll_events()
