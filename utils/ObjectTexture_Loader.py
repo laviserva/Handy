@@ -51,6 +51,8 @@ class ObjLoader:
                     "i": indices needed for render
                     "b": buffer needed for render
                     "max_f": maximum indices in faces.
+                    "len_i": lenght of indices
+                    "init_pos": initial position for rendering, default [0, 0, 0] (x, y, z)
                    
                    object_2:
                     ...
@@ -66,6 +68,7 @@ class ObjLoader:
                 if (values[0] == "o" or values[0] == "g") and self.__first_time:
                     if key_obj != None and len(self.objects) > 0: # Maximum index for previous object
                         self.max_f = self.objects[key_obj]["max_f"]
+                        self.objects[key_obj]["len_i"] = len(self.objects[key_obj]["i"])
                     key_obj = values[1]
                     self.objects[values[1]] = {
                         "v": [],
@@ -75,6 +78,8 @@ class ObjLoader:
                         "i": [],
                         "b": [],
                         "max_f": [0, 0, 0],
+                        "len_i": 0,
+                        "init_pos": [0, 0, 0],
                     }
                     if not self._all_objects: self.__first_time = False
                     continue
@@ -99,6 +104,7 @@ class ObjLoader:
         if values[0] == "f":
             objects["f"] += values[1:]
             objects["i"] += self._fix_indices(values[1:])
+            objects["len_i"] += 9
         return objects
     
     @staticmethod
@@ -115,6 +121,8 @@ class ObjLoader:
                         "i": indices needed for render
                         "b": buffer needed for render
                         "max_f": maximum indices in faces.
+                        "len_i": lenght of indices
+                        "init_pos": initial position for rendering, default [0, 0, 0] (x, y, z)
                     
                     object_2:
                         ...
@@ -144,6 +152,8 @@ class ObjLoader:
     def _to_numpy(objects: dict) -> dict:
         for key in objects:
             for subkey in objects[key]:
+                if not isinstance(objects[key][subkey], (list, tuple)):
+                    continue
                 if isinstance(objects[key][subkey][0], float):
                     datatype = np.float32
                 elif isinstance(objects[key][subkey][0], int):

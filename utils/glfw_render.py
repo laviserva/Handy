@@ -123,14 +123,10 @@ class Renderer:
         glUniformMatrix4fv(self._view_loc, 1, GL_FALSE, self._view)
     
     def _refresh(self, model, objects):
-        plane_pos = pyrr.matrix44.create_from_translation(pyrr.Vector3([0, -5, -10]))
-        rot_y = pyrr.Matrix44.from_y_rotation(0.8 * glfw.get_time())
-        model = pyrr.matrix44.multiply(rot_y, plane_pos)
-        for key in objects:
-            glUniformMatrix4fv(self._model_loc, 1, GL_FALSE, model)
-            glDrawArrays(GL_TRIANGLES, 0, len(objects[key]["i"]))
+        glUniformMatrix4fv(self._model_loc, 1, GL_FALSE, model)
+        glDrawArrays(GL_TRIANGLES, 0, objects["Plane"]["len_i"])
 
-    def render(self, objects: dict, function: callable = None, model = None):
+    def render(self, objects: dict, function: callable = None):
         """Create windows, load shaders and refresh window"""
         self._create_window()
         self._load_shader()
@@ -139,16 +135,16 @@ class Renderer:
         parser._load_vertex()
         parser._load_textures()
 
-        self._while_loop(function, model = model, objects=objects)
+        self._while_loop(function, objects=objects)
 
-    def _while_loop(self, function: callable = None, model = None, objects = None):
+    def _while_loop(self, function: callable = None, objects = None):
         """while loop where objects will be refreshed"""
         while not glfw.window_should_close(self._window):
             glfw.poll_events()
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
             if function: function()
-            self._refresh(model, objects)
+            self._refresh(objects)
             glfw.swap_buffers(self._window)
 
         # terminate glfw, free up allocated resources
@@ -207,6 +203,11 @@ class Object_parser:
 
             glEnableVertexAttribArray(2)
             glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, obj.itemsize * 8, ctypes.c_void_p(20))
+
+            print("obj.nbytes: ", obj.nbytes)
+            print("obj.itemsize * 8: ", obj.itemsize * 8)
+            print("VAO: ", VAO)
+            print("VBO: ", VBO)
 
             # unbind VBO and VAO
             glBindBuffer(GL_ARRAY_BUFFER, 0)
