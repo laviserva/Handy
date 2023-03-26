@@ -125,9 +125,6 @@ class Renderer:
     def _refresh(self, objects):
         glUniformMatrix4fv(self._model_loc, 1, GL_FALSE, objects["Plane"]["init_pos"])
         glDrawArrays(GL_TRIANGLES, 0, objects["Plane"]["len_i"])
-        print("\n\nself._model_loc: ", self._model_loc)
-        print("objects['Plane']['init_pos']: ", objects["Plane"]["init_pos"])
-        print("objects['Plane']['len_i']: ", objects["Plane"]["len_i"])
 
     def render(self, objects: dict, function: callable = None):
         """Create windows, load shaders and refresh window"""
@@ -207,14 +204,10 @@ class Object_parser:
             glEnableVertexAttribArray(2)
             glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, obj.itemsize * 8, ctypes.c_void_p(20))
 
-            print("obj.nbytes: ", obj.nbytes)
-            print("obj.itemsize * 8: ", obj.itemsize * 8)
-            print("VAO: ", VAO)
-            print("VBO: ", VBO)
-
             # unbind VBO and VAO
-            glBindBuffer(GL_ARRAY_BUFFER, 0)
-            glBindVertexArray(0)
+            # Uncomment to make sure that the object is invisible
+            #glBindBuffer(GL_ARRAY_BUFFER, 0)
+            #glBindVertexArray(0)
 
             # append VAO and VBO to their lists
             self._VAOs.append(VAO)
