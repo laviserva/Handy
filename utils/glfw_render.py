@@ -122,9 +122,12 @@ class Renderer:
         glUniformMatrix4fv(self._proj_loc, 1, GL_FALSE, self._projection)
         glUniformMatrix4fv(self._view_loc, 1, GL_FALSE, self._view)
     
-    def _refresh(self, model, objects):
-        glUniformMatrix4fv(self._model_loc, 1, GL_FALSE, model)
+    def _refresh(self, objects):
+        glUniformMatrix4fv(self._model_loc, 1, GL_FALSE, objects["Plane"]["init_pos"])
         glDrawArrays(GL_TRIANGLES, 0, objects["Plane"]["len_i"])
+        print("\n\nself._model_loc: ", self._model_loc)
+        print("objects['Plane']['init_pos']: ", objects["Plane"]["init_pos"])
+        print("objects['Plane']['len_i']: ", objects["Plane"]["len_i"])
 
     def render(self, objects: dict, function: callable = None):
         """Create windows, load shaders and refresh window"""
