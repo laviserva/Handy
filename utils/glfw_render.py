@@ -122,8 +122,8 @@ class Renderer:
         glUniformMatrix4fv(self._proj_loc, 1, GL_FALSE, self._projection)
         glUniformMatrix4fv(self._view_loc, 1, GL_FALSE, self._view)
     
-    def _refresh(self, objects):
-        glUniformMatrix4fv(self._model_loc, 1, GL_FALSE, objects["Plane"]["init_pos"])
+    def _refresh(self, objects, model = None):
+        glUniformMatrix4fv(self._model_loc, 1, GL_FALSE, model)
         glDrawArrays(GL_TRIANGLES, 0, objects["Plane"]["len_i"])
 
     def render(self, objects: dict, function: callable = None):
@@ -143,8 +143,11 @@ class Renderer:
             glfw.poll_events()
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-            if function: function()
-            self._refresh(objects)
+            if function:
+                model = function(objects)
+                self._refresh(objects, model = model)
+            else:
+                self._refresh(objects)
             glfw.swap_buffers(self._window)
 
         # terminate glfw, free up allocated resources
