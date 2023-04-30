@@ -34,6 +34,7 @@ class Camera:
         self.constrain_value = constrain_value
         self.velocity = velocity
 
+        self.first_mouse = True
 
     def get_view_matrix(self) -> matrix44:
         return matrix44.create_look_at(self.camera_pos, self.camera_pos + self.camera_front, self.camera_up)

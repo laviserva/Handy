@@ -27,9 +27,12 @@ class RendOs:
         self.target: List = [0, 0, 0]
         self.up: List = [0, 1, 0]
 
+        # Camera
+        self.cam = Camera()
+
         self.renderer = Renderer(width = self.width, height =self.height, title = self.title, width_initpos = self.width_initpos,
                             height_initpos=self.height_initpos, fovy = self.fovy, z_near = self.z_near, far = self.far,
-                            eye = self.eye, target = self.target, up = self.up,
+                            eye = self.eye, target = self.target, up = self.up, cam = self.cam
                             )
 
         # Camera Properties
@@ -44,10 +47,7 @@ class RendOs:
         self.gui = GUI_config.GLFW
         self.keys_inputs = Keys_input(self.gui)
         self.renderer.keys_inputs = self.keys_inputs
-
-        # Camera
-        self.cam = Camera()
-
+        
         # 3D Model
         self.obj_model = None
 
@@ -57,7 +57,6 @@ class RendOs:
         
         self.view = self.cam.get_view_matrix()
         glUniformMatrix4fv(self.renderer._view_loc, 1, GL_FALSE, self.view)
-
     
     def load_model(self, obj_dir, texture_dir, all_objects = True, initial_position = [0, 0, 0]):
         self.obj_model = ObjLoader(obj_dir, texture_path=texture_dir, all_objects=all_objects)
@@ -71,6 +70,6 @@ class RendOs:
 
     def _to_refresh_loop(self):
         functions = [
-            self._camera_update_from_keys
+            self._camera_update_from_keys,
             ]
         return functions
