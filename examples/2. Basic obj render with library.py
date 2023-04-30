@@ -15,8 +15,6 @@ sys.path.append(parent_dir)
 from utils.glfw_render import Renderer
 from utils.ObjectTexture_Loader import ObjLoader
 
-projection = pyrr.matrix44.create_perspective_projection_matrix(45, 1280 / 720, 0.1, 100)
-
 texture_dir = os.path.join(resources_dir, r"texture 1.png")
 obj_dir = os.path.join(resources_dir, r"plane_1.obj")
 
