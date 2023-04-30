@@ -69,13 +69,18 @@ class Renderer:
         self._view = pyrr.matrix44.create_look_at(pyrr.Vector3(eye),
                                                   pyrr.Vector3(target),
                                                   pyrr.Vector3(up))
-        
+        # Utils for render
         self._window = None
         self._Shader = None
 
+        # loc for Render
         self._model_loc = None
         self._proj_loc = None
         self._view_loc = None
+
+        # functions
+        self.functions = None
+        self.keys_inputs = None # Key inputs
     
     def _comprobe_ic(self, width, height, title, width_initpos, height_initpos):
         width_pt, height_pt = self._get_monitor_shape()
@@ -126,6 +131,7 @@ class Renderer:
 
         glfw.set_window_pos(self._window, self._width_initpos, self._height_initpos)
         glfw.set_window_size_callback(self._window, self._window_resize)
+        glfw.set_key_callback(self._window, self.keys_inputs.keys_inputs)
         glfw.make_context_current(self._window)
     
     def _get_monitor_shape(self) -> Tuple[int]:
@@ -144,9 +150,14 @@ class Renderer:
         glUniformMatrix4fv(self._proj_loc, 1, GL_FALSE, self._projection)
         glUniformMatrix4fv(self._view_loc, 1, GL_FALSE, self._view)
     
-    def _refresh(self, objects, model = None):
+    def _refresh_object(self, objects, model = None):
         glUniformMatrix4fv(self._model_loc, 1, GL_FALSE, model)
         glDrawArrays(GL_TRIANGLES, 0, objects["Plane"]["len_i"])
+
+    def _refresh_functions(self):
+        if self.functions:
+            for f in self.functions:
+                f()
 
     def render(self, objects: dict, function: callable = None):
         """Create windows, load shaders and refresh window"""
@@ -158,18 +169,21 @@ class Renderer:
         parser._load_textures()
 
         self._while_loop(function, objects=objects)
+    
+    def _load_functions(self, functions):
+        self.functions = functions
 
     def _while_loop(self, function: callable = None, objects = None):
         """while loop where objects will be refreshed"""
         while not glfw.window_should_close(self._window):
             glfw.poll_events()
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
+            self._refresh_functions()
             if function:
                 model = function(objects)
-                self._refresh(objects, model = model)
+                self._refresh_object(objects, model = model)
             else:
-                self._refresh(objects)
+                self._refresh_object(objects)
             glfw.swap_buffers(self._window)
 
         # terminate glfw, free up allocated resources
