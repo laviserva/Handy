@@ -25,7 +25,8 @@ class Renderer:
     def __init__(self, width: int=1280, height: int=720, title: str = "default name",
                  width_initpos: int = 400, height_initpos: int =200,
                  fovy: int = 45, z_near: float = 0.1, far: int = 100,
-                 eye: List = [0, 0, 8], target: List = [0, 0, 0], up: List = [0, 1, 0]
+                 eye: List = [0, 0, 8], target: List = [0, 0, 0], up: List = [0, 1, 0],
+                 cam = None
                  ):
         """Provide information to create a windows for render
 
@@ -52,6 +53,8 @@ class Renderer:
                 Vector that specifies the point towards which the camera is looking.
             up (List, optional): 
                 Vector that specifies the upward direction of the camera.
+            cam (Camera, optional): 
+                Camera that modify how we see the render
         """
         if not glfw.init():
             raise Exception("glfw can not be initialized!")
@@ -81,6 +84,7 @@ class Renderer:
         # functions
         self.functions = None
         self.keys_inputs = None # Key inputs
+        self.cam = cam
     
     def _comprobe_ic(self, width, height, title, width_initpos, height_initpos):
         width_pt, height_pt = self._get_monitor_shape()
@@ -131,6 +135,7 @@ class Renderer:
 
         glfw.set_window_pos(self._window, self._width_initpos, self._height_initpos)
         glfw.set_window_size_callback(self._window, self._window_resize)
+        glfw.set_cursor_pos_callback(self._window, self._mouse_clb)
         glfw.set_key_callback(self._window, self.keys_inputs.keys_inputs)
         glfw.make_context_current(self._window)
     
@@ -149,6 +154,27 @@ class Renderer:
 
         glUniformMatrix4fv(self._proj_loc, 1, GL_FALSE, self._projection)
         glUniformMatrix4fv(self._view_loc, 1, GL_FALSE, self._view)
+    
+    def _mouse_clb(self, window: glfw, xpos: float, ypos:float):
+        mouse_pos = self._mouse_look_clb(window, xpos, ypos)
+        self.cam.process_mouse_movement(mouse_pos[0], mouse_pos[1])
+    
+    def _mouse_look_clb(self, window: glfw, xpos: float, ypos:float) -> None:
+        """
+        Mouse position callback function
+        """
+        if self.cam.first_mouse:
+            self.lastX = xpos
+            self.lastY = ypos
+            self.cam.first_mouse = False
+        
+        self.xoffset = xpos - self.lastX
+        self.yoffset = self.lastY - ypos
+        
+        self.lastX = xpos
+        self.lastY = ypos
+        
+        return self.xoffset, self.yoffset
     
     def _refresh_object(self, objects, model = None):
         glUniformMatrix4fv(self._model_loc, 1, GL_FALSE, model)
@@ -189,12 +215,11 @@ class Renderer:
         # terminate glfw, free up allocated resources
         glfw.terminate()
 
-    @staticmethod
-    def _window_resize(window: glfw, width: int, height: int):
+    def _window_resize(self, window: glfw, width: int, height: int):
         """Resize window callback helper"""
         glViewport(0, 0, width, height)
-        Renderer._projection = pyrr.matrix44.create_perspective_projection_matrix(45, width / height, 0.1, 100)
-        glUniformMatrix4fv(Renderer._proj_loc, 1, GL_FALSE, Renderer._projection)
+        self._projection = pyrr.matrix44.create_perspective_projection_matrix(45, width / height, 0.1, 100)
+        glUniformMatrix4fv(self._proj_loc, 1, GL_FALSE, self._projection)
 
 class Shader:
     def __init__(self) -> None:
