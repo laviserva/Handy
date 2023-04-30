@@ -42,8 +42,11 @@ class Renderer:
         self._title = title
         self._width_initpos = width_initpos
         self._height_initpos = height_initpos
+        self.fovy = 45     # field of view in y direction in degrees
+        self.z_near = 0.1  # distance from the viewer to the near clipping plane (only positive)
+        self.far = 100     # distance from the viewer to the far clipping plane (only positive)
 
-        self._projection = pyrr.matrix44.create_perspective_projection_matrix(45, width / height, 0.1, 100)
+        self._projection = pyrr.matrix44.create_perspective_projection_matrix(self.fovy, width / height, self.z_near, self.far)
         self._view = pyrr.matrix44.create_look_at(pyrr.Vector3([0, 0, 8]),
                                                   pyrr.Vector3([0, 0, 0]),
                                                   pyrr.Vector3([0, 1, 0]))
