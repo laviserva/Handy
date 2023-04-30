@@ -11,7 +11,7 @@ import pyrr
 import sys
 import os
 
-from typing import Tuple
+from typing import Tuple, List
 
 file_dir = __file__
 current_dir = os.path.dirname(file_dir)
@@ -23,16 +23,35 @@ from utils.ObjectTexture_Loader import load_texture
 
 class Renderer:
     def __init__(self, width: int=1280, height: int=720, title: str = "default name",
-                 width_initpos: int = 400, height_initpos: int =200
+                 width_initpos: int = 400, height_initpos: int =200,
+                 fovy: int = 45, z_near: float = 0.1, far: int = 100,
+                 eye: List = [0, 0, 8], target: List = [0, 0, 0], up: List = [0, 1, 0]
                  ):
         """Provide information to create a windows for render
 
         Args:
-            width (int, optional): width size. Defaults to 1280.
-            height (int, optional): height size. Defaults to 720.
-            title (str, optional): title for the window. Defaults to "default name".
-            width_initpos (int, optional): where should start width window. Defaults to 400.
-            height_initpos (int, optional): where should start height window. Defaults to 200.
+            width (int, optional): 
+                Width size. Defaults to 1280.
+            height (int, optional): 
+                Height size. Defaults to 720.
+            title (str, optional): 
+                Title for the window. Defaults to "default name".
+            width_initpos (int, optional): 
+                Where should start width window. Defaults to 400.
+            height_initpos (int, optional): 
+                Where should start height window. Defaults to 200.
+            fovy (int, optional): 
+                Field of view in y direction in degrees. Defaults to 45.
+            z_near (float, optional): 
+                Distance from the viewer to the near clipping plane (only positive). Defaults to 0.1.
+            far (int, optional): 
+                Distance from the viewer to the far clipping plane (only positive). Defaults to 100.
+            eye (List, optional): 
+                Vector that specifies the position of the camera in 3D space.
+            target (List, optional): 
+                Vector that specifies the point towards which the camera is looking.
+            up (List, optional): 
+                Vector that specifies the upward direction of the camera.
         """
         if not glfw.init():
             raise Exception("glfw can not be initialized!")
@@ -42,14 +61,14 @@ class Renderer:
         self._title = title
         self._width_initpos = width_initpos
         self._height_initpos = height_initpos
-        self.fovy = 45     # field of view in y direction in degrees
-        self.z_near = 0.1  # distance from the viewer to the near clipping plane (only positive)
-        self.far = 100     # distance from the viewer to the far clipping plane (only positive)
+        self.fovy = fovy     # field of view in y direction in degrees
+        self.z_near = z_near  # distance from the viewer to the near clipping plane (only positive)
+        self.far = far     # distance from the viewer to the far clipping plane (only positive)
 
         self._projection = pyrr.matrix44.create_perspective_projection_matrix(self.fovy, width / height, self.z_near, self.far)
-        self._view = pyrr.matrix44.create_look_at(pyrr.Vector3([0, 0, 8]),
-                                                  pyrr.Vector3([0, 0, 0]),
-                                                  pyrr.Vector3([0, 1, 0]))
+        self._view = pyrr.matrix44.create_look_at(pyrr.Vector3(eye),
+                                                  pyrr.Vector3(target),
+                                                  pyrr.Vector3(up))
         
         self._window = None
         self._Shader = None
