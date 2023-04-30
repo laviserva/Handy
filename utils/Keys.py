@@ -1,12 +1,12 @@
 from enum import Enum, auto
 import glfw
 
-from utils.Config import GUI, Keys
+from utils.Config import GUI_config
     
 class Keys_input:
     def __init__(self,gui):
         self.gui = gui
-        self.flag_GLFW = GUI.GLFW
+        self.flag_GLFW = GUI_config.GLFW
 
         self.all_keys = {}
         
