@@ -2,7 +2,8 @@ from enum import Enum, auto
 import glfw
 
 from utils.Config import GUI_config
-    
+from utils.Config import Keys_config # Used in "do_movement" (eval) 
+
 class Keys_input:
     def __init__(self,gui):
         self.gui = gui
@@ -70,7 +71,6 @@ class Keys_input:
         for key in self.all_keys:
             if self.all_keys[key][1]:
                 # Keys -> Variable name
-                command = eval(str("Keys."+self.all_keys[key][2].upper()))
-                coms.append(command)
+                command = eval(str("Keys_config."+self.all_keys[key][2].upper())) # When key is pressed, select predesigned variable from Key_config
+                coms.append(command) # In this way is possible to do more than 2 movements at the same time
         return coms
-                
