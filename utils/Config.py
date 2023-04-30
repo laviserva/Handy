@@ -1,9 +1,9 @@
 from enum import Enum, auto
 
-class GUI(Enum):
+class GUI_config(Enum):
     GLFW = auto()
 
-class Keys(Enum):
+class Keys_config(Enum):
     FORWARD = auto()
     BACKWARD = auto()
     LEFT = auto()
