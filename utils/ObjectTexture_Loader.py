@@ -22,13 +22,22 @@ def load_texture(path, texture):
     return texture
 
 class ObjLoader:
-    def __init__(self, object_path: str, all_objects: bool = False):
-        self.all_objects = all_objects
+    def __init__(self, object_path: str, all_objects: bool = False, texture_path: str = None):
+        self._all_objects = all_objects
+        self.texture = texture_path
         
         self.objects = {}
         self.object_path = object_path
         self.max_f = [0, 0, 0]
         self.__first_time = True
+
+    def _add_texture(self, objects):
+        if not self.texture: return objects
+        
+        for key in objects:
+            objects[key]["t"] = self.texture
+        return objects
+        
 
     def load_model(self):
         """Return all objects inside a .obj file
@@ -42,6 +51,8 @@ class ObjLoader:
                     "i": indices needed for render
                     "b": buffer needed for render
                     "max_f": maximum indices in faces.
+                    "len_i": lenght of indices
+                    "init_pos": initial position for rendering, default [0, 0, 0] (x, y, z)
                    
                    object_2:
                     ...
@@ -57,6 +68,7 @@ class ObjLoader:
                 if (values[0] == "o" or values[0] == "g") and self.__first_time:
                     if key_obj != None and len(self.objects) > 0: # Maximum index for previous object
                         self.max_f = self.objects[key_obj]["max_f"]
+                        self.objects[key_obj]["len_i"] = len(self.objects[key_obj]["i"])
                     key_obj = values[1]
                     self.objects[values[1]] = {
                         "v": [],
@@ -66,15 +78,18 @@ class ObjLoader:
                         "i": [],
                         "b": [],
                         "max_f": [0, 0, 0],
+                        "len_i": 0,
+                        "init_pos": [0, 0, 0],
                     }
-                    if not self.all_objects: self.__first_time = False
+                    if not self._all_objects: self.__first_time = False
                     continue
                 
                 if key_obj == None:
                     continue
                 self.objects[key_obj] = self._get_all_objects(values, self.objects[key_obj])
         self.objects = self._vertex_buffers(self.objects)
-        return self._to_numpy(self.objects)
+        self.objects = self._to_numpy(self.objects)
+        return self._add_texture(self.objects)
 
     def _fix_indices(self, faces: str) -> List[int]:
         out = []
@@ -89,6 +104,7 @@ class ObjLoader:
         if values[0] == "f":
             objects["f"] += values[1:]
             objects["i"] += self._fix_indices(values[1:])
+            objects["len_i"] += 9
         return objects
     
     @staticmethod
@@ -105,6 +121,8 @@ class ObjLoader:
                         "i": indices needed for render
                         "b": buffer needed for render
                         "max_f": maximum indices in faces.
+                        "len_i": lenght of indices
+                        "init_pos": initial position for rendering, default [0, 0, 0] (x, y, z)
                     
                     object_2:
                         ...
@@ -134,6 +152,8 @@ class ObjLoader:
     def _to_numpy(objects: dict) -> dict:
         for key in objects:
             for subkey in objects[key]:
+                if not isinstance(objects[key][subkey], (list, tuple)):
+                    continue
                 if isinstance(objects[key][subkey][0], float):
                     datatype = np.float32
                 elif isinstance(objects[key][subkey][0], int):
