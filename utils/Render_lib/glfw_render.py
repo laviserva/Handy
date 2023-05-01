@@ -1,10 +1,5 @@
-from OpenGL.GL import glGetUniformLocation, glBlendFunc, glClear, glUseProgram, glClearColor, glEnable, glViewport, \
-                    GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_DEPTH_BUFFER_BIT, GL_FALSE, GL_DEPTH_TEST, GL_BLEND, \
-                    GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_COLOR_BUFFER_BIT, glUniformMatrix4fv, glBindVertexArray, \
-                    glBindBuffer, GL_ARRAY_BUFFER, glBufferData, GL_ARRAY_BUFFER, GL_STATIC_DRAW, glGenVertexArrays, \
-                    glGenBuffers, glEnableVertexAttribArray, glVertexAttribPointer, GL_FLOAT, ctypes, glGenTextures, \
-                    glBindTexture, GL_TEXTURE_2D, glDrawArrays, GL_TRIANGLES
-from OpenGL.GL.shaders import compileProgram, compileShader
+from OpenGL.GL import   glGetUniformLocation, glClear, glViewport, GL_DEPTH_BUFFER_BIT, GL_FALSE, \
+                        GL_COLOR_BUFFER_BIT, glUniformMatrix4fv, glDrawArrays, GL_TRIANGLES
 
 import glfw
 import pyrr
@@ -18,10 +13,10 @@ current_dir = os.path.dirname(file_dir)
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from utils.Load_src import load_src
-from utils.ObjectTexture_Loader import load_texture
+from Shaders import Shader, Object_parser
+from Render import Renderer
 
-class Renderer:
+class GLFW_Renderer(Renderer):
     def __init__(self, width: int=1280, height: int=720, title: str = "default name",
                  width_initpos: int = 400, height_initpos: int =200,
                  fovy: int = 45, z_near: float = 0.1, far: int = 100,
@@ -220,67 +215,3 @@ class Renderer:
         glViewport(0, 0, width, height)
         self._projection = pyrr.matrix44.create_perspective_projection_matrix(45, width / height, 0.1, 100)
         glUniformMatrix4fv(self._proj_loc, 1, GL_FALSE, self._projection)
-
-class Shader:
-    def __init__(self) -> None:
-        self._vertex_src = load_src(os.path.join(parent_dir, "cpp", "vertex_src.c"))
-        self._fragment_src = load_src(os.path.join(parent_dir, "cpp", "fragment_src.c"))
-        self._shader = compileProgram(compileShader(self._vertex_src, GL_VERTEX_SHADER),
-                                      compileShader(self._fragment_src, GL_FRAGMENT_SHADER))
-        
-        glUseProgram(self._shader)
-        glClearColor(0, 0.1, 0.1, 1)
-        glEnable(GL_DEPTH_TEST)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-
-class Object_parser:
-    def __init__(self, objects: dict) -> None:
-        self._objects = objects
-        self._indices = []
-        self._buffers = []
-        self._VAOs = []
-        self._VBOs = []
-        
-        for key in objects:
-            self._indices.append(objects[key]["i"])
-            self._buffers.append(objects[key]["b"])
-
-    def _load_vertex(self):
-        for obj in self._buffers:
-            VAO = glGenVertexArrays(1)
-            VBO = glGenBuffers(1)
-
-            # bind VAO
-            glBindVertexArray(VAO)
-
-            # bind VBO
-            glBindBuffer(GL_ARRAY_BUFFER, VBO)
-            glBufferData(GL_ARRAY_BUFFER, obj.nbytes, obj, GL_STATIC_DRAW)
-
-            # set attribute pointers
-            glEnableVertexAttribArray(0)
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, obj.itemsize * 8, ctypes.c_void_p(0))
-
-            glEnableVertexAttribArray(1)
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, obj.itemsize * 8, ctypes.c_void_p(12))
-
-            glEnableVertexAttribArray(2)
-            glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, obj.itemsize * 8, ctypes.c_void_p(20))
-
-            # unbind VBO and VAO
-            # Uncomment to make sure that the object is invisible
-            #glBindBuffer(GL_ARRAY_BUFFER, 0)
-            #glBindVertexArray(0)
-
-            # append VAO and VBO to their lists
-            self._VAOs.append(VAO)
-            self._VBOs.append(VBO)
-    
-    def _load_textures(self):
-        for key in self._objects:
-            textures = glGenTextures(1)
-            load_texture(self._objects[key]["t"], textures)
-
-#r = Renderer()
-#r.render()
