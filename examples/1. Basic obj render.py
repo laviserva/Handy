@@ -19,8 +19,9 @@ plane_pos = pyrr.matrix44.create_from_translation(pyrr.Vector3([0, -5, -10]))
 
 vertex_src = load_src(os.path.join(parent_dir, "cpp", "vertex_src.c"))
 fragment_src = load_src(os.path.join(parent_dir, "cpp", "fragment_src.c"))
+obj_dir = os.path.join(parent_dir, "Resources", "plane_1.obj")
 
-plane = ObjLoader(r"D:\Proyectos\Handy\Resources\plane_1.obj")
+plane = ObjLoader(obj_dir)
 plane = plane.load_model()
 plane_indices = plane["Plane"]["i"]
 plane_buffer = plane["Plane"]["b"]

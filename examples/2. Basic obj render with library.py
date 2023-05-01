@@ -12,7 +12,7 @@ parent_dir = os.path.dirname(current_dir)
 resources_dir = os.path.join(parent_dir, "Resources")
 sys.path.append(parent_dir)
 
-from utils.glfw_render import Renderer
+from utils.Render_lib.glfw_render import GLFW_Renderer
 from utils.ObjectTexture_Loader import ObjLoader
 
 texture_dir = os.path.join(resources_dir, r"texture 1.png")
@@ -27,5 +27,5 @@ def rotation(plane):
     model = pyrr.matrix44.multiply(rot_y, plane["Plane"]["init_pos"])
     return model
 
-renderer = Renderer()
+renderer = GLFW_Renderer()
 renderer.render(plane, function=rotation)
