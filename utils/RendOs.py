@@ -1,8 +1,8 @@
 from utils.Camera import Camera
 from utils.Config import GUI_config
-from utils.glfw_render import Renderer
 from utils.Keys import Keys_input
 from utils.ObjectTexture_Loader import ObjLoader
+from utils.Render_lib.glfw_render import GLFW_Renderer
 
 from typing import List
 
@@ -14,27 +14,10 @@ class RendOs:
     GUI_ = GUI_config
 
     def __init__(self, ) -> None:
-        # render properties
-        self.width: int=1280
-        self.height: int=720
-        self.title: str = "default name"
-        self.width_initpos: int = 400
-        self.height_initpos: int =200
-        self.fovy: int = 45
-        self.z_near: float = 0.1
-        self.far: int = 100
-        self.eye: List = [0, 0, 8]
-        self.target: List = [0, 0, 0]
-        self.up: List = [0, 1, 0]
 
-        # Camera
         self.cam = Camera()
-
-        self.renderer = Renderer(width = self.width, height =self.height, title = self.title, width_initpos = self.width_initpos,
-                            height_initpos=self.height_initpos, fovy = self.fovy, z_near = self.z_near, far = self.far,
-                            eye = self.eye, target = self.target, up = self.up, cam = self.cam
-                            )
-
+        
+        self.renderer = GLFW_Renderer(cam = self.cam)
         # Camera Properties
         self.mouse_sensitivity:float = 0.25
         self.jaw:int = -90
