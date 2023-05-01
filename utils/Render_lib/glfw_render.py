@@ -130,9 +130,13 @@ class GLFW_Renderer(Renderer):
 
         glfw.set_window_pos(self._window, self._width_initpos, self._height_initpos)
         glfw.set_window_size_callback(self._window, self._window_resize)
-        glfw.set_cursor_pos_callback(self._window, self._mouse_clb)
-        glfw.set_key_callback(self._window, self.keys_inputs.keys_inputs)
+        
         glfw.make_context_current(self._window)
+
+        if self.keys_inputs:
+            glfw.set_key_callback(self._window, self.keys_inputs.keys_inputs)
+        if self.cam:
+            glfw.set_cursor_pos_callback(self._window, self._mouse_clb)
     
     def _get_monitor_shape(self) -> Tuple[int]:
         monitor = glfw.get_primary_monitor()
