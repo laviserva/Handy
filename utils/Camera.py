@@ -21,6 +21,7 @@ class Camera:
             position (list[float], optional):
                 Initial position of camera. Defaults to [0.0, 0.0, 10.0].
         """
+        self.__comprobe_ic(mouse_sensitivity, jaw, pitch, constrain_value, velocity, position)
         # Where is the camera
         self.camera_pos = Vector3(position)
         self.camera_front = Vector3([0.0, 0.0, -1.0])
@@ -35,6 +36,29 @@ class Camera:
         self.velocity = velocity
 
         self.first_mouse = True
+    
+    def __comprobe_ic(self, mouse_sensitivity, jaw, pitch, constrain_value, velocity, position):
+
+        if not isinstance(mouse_sensitivity, float):
+            raise ValueError(f"float value expected. {type(mouse_sensitivity)} given")
+        if not isinstance(jaw, int):
+            raise ValueError(f"int value expected. {type(jaw)} given")
+        if not isinstance(pitch, int):
+            raise ValueError(f"int value expected. {type(pitch)} given")
+        if not isinstance(constrain_value, int):
+            raise ValueError(f"int value expected. {type(constrain_value)} given")
+        if not isinstance(velocity, int):
+            raise ValueError(f"int value expected. {type(velocity)} given")
+        if not isinstance(position, list):
+            raise ValueError(f"list value expected. {type(position)} given")
+        if not isinstance(position[0], float):
+            raise ValueError(f"float value expected. {type(position[0])} given")
+        if not isinstance(position[1], float):
+            raise ValueError(f"float value expected. {type(position[1])} given")
+        if not isinstance(position[2], float):
+            raise ValueError(f"float value expected. {type(position[2])} given")
+        if velocity == 0:
+            raise ValueError(f"0 is not a possible valor. Please provide another different")
 
     def get_view_matrix(self) -> matrix44:
         return matrix44.create_look_at(self.camera_pos, self.camera_pos + self.camera_front, self.camera_up)
