@@ -60,7 +60,6 @@ class Camera:
         front.x = np.cos(np.radians(self.jaw)) * np.cos(np.radians(self.pitch))
         front.y = np.sin(np.radians(self.pitch))
         front.z = np.sin(np.radians(self.jaw)) * np.cos(np.radians(self.pitch))
-        print(self.jaw, self.pitch, front)
 
         self.camera_front = vector.normalise(front)
         self.camera_right = vector.normalise(vector3.cross(self.camera_front, Vector3([0.0, 1.0, 0.0])))
@@ -70,7 +69,6 @@ class Camera:
         """Camera method for movement"""
         if direction == Keys_config.FORWARD:
             self.camera_pos += self.camera_front * self.velocity
-            print(self.camera_pos[0])
         if direction == Keys_config.BACKWARD:
             self.camera_pos -= self.camera_front * self.velocity
         if direction == Keys_config.LEFT:
