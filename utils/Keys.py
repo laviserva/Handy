@@ -38,7 +38,7 @@ class Keys_input:
                 if self.gui == self.flag_GLFW:
                     name = "KEY_"
                 else:
-                    name = "KEY_"
+                    raise(Exception(ValueError("Invalid GUI, please use GLFW")))
                 self.all_keys[int(split[1])] = [name + split[0], False, split[2]]
 
     def keys_inputs(self, *args):
